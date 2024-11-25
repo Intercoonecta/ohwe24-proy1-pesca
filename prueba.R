@@ -5,4 +5,5 @@ merluza <- readRDS("./datos/merluza_WL.rda")
 head(merluza)
 
 # gráfico tall-peso
-plot(merluza$lonPatron, merluza$peso)
+plot(merluza$lonPatron, merluza$peso, pch = 16, col = rgb(1, 0, 0, 0.2), 
+     cex = 0.7, xlab = "Longitud Patrón (mm)", ylab = "peso (g)")
