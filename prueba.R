@@ -1,5 +1,5 @@
 # cargar datos de peso y longitud de merluza
-merluza <- readRDS("./datos/merluza_WL.rda")
+merluza <- readRDS("./datos/merluza_WL.rds")
 
 #ver primeros renglones
 head(merluza)
