@@ -1,0 +1,46 @@
+---
+title: "Atunes"
+author: "a y b"
+format: html
+editor: visual
+---
+## Paquetes 
+
+```{r}
+library(visdat)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+```
+
+## Datos
+
+```{r}
+datos_a <- read.csv("../datos/PublicPSTunaFlag.csv", header = T)
+str(datos_a)
+
+datos_b <-  read.csv("../datos/PublicPSTunaSetType.csv", header = T)
+str(datos_b)
+```
+
+```{r}
+captura_anual_especies <- datos_a %>%
+  group_by(Year) %>%              
+  summarise(across(c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), sum, na.rm = TRUE))  
+
+captura_anual_long <- captura_anual_especies %>%
+  pivot_longer(cols = c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), 
+               names_to = "Especie", 
+               values_to = "Captura")
+
+ggplot(captura_anual_long, aes(x = Year, y = Captura, color = Especie)) +
+  geom_line(linewidth = 1.2) + 
+  theme_minimal() +  
+  labs(title = "Capturas Anuales por Especie", 
+       x = "Año", 
+       y = "Captura Total", 
+       color = "Especie") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
