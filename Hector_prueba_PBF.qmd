@@ -1,0 +1,40 @@
+---
+title: "Analisis de datos CIAT"
+author: "Héctor Villalobos"
+format: html
+editor: visual
+---
+
+Cargar paquetes
+
+```{r}
+library(PBSmapping)
+library(maps)
+```
+
+# Exploración de datos
+
+Primero importar
+
+```{r}
+ciat <- read.csv("./datos/PublicPSTunaSetType.csv")
+head(ciat)
+```
+
+Trabajar con una especie: PBF
+
+```{r}
+PBF <- ciat[ciat$PBF > 0, c('LonC1', 'LatC1', 'PBF')]
+
+PBF <- data.frame(EID = 1:nrow(PBF), PBF)
+names(PBF)[2:4] <- c('X', 'Y', 'Z')
+class(PBF) <- c("data.frame", "EventData")
+```
+
+Mapa
+
+```{r}
+plot(PBF$X, PBF$Y, type = "n", asp = 1)
+map("world", add = TRUE)
+addBubbles(PBF, max.size = 0.5)
+```
