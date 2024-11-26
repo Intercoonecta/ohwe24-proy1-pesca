@@ -5,8 +5,6 @@ f_logistic <- function(t, pars = list(linf, k, ti)) {
   linf  <- pars$linf
   k     <- pars$k
   ti    <- pars$ti
-
-  # Evitar valores negativos en la longitud
   lt    <- linf / (1 + exp((ti-t) / k))
 
   return(lt)
