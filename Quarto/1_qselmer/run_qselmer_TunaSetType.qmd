@@ -1,7 +1,7 @@
 ---
-title: "Análisis de Capturas de Atún por la Flota de Cerco en el Océano Pacífico Oriental (1958-2023)"
+title: "Análisis de Capturas de Atún por la Flota de Cerco en el Océano Pacífico Oriental (19990-2023)"
 author: "Elmer Ovidio Quispe Salazar"
-date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+date: "`r Sys.Date()`"
 output: 
   html_document:
     toc: true
@@ -14,7 +14,6 @@ editor: visual
 ---
 
 ```{r setup, include=FALSE}
-# Configuración global de chunks
 knitr::opts_chunk$set(
   echo = TRUE,        # Mostrar código en el informe
   warning = FALSE,    # No mostrar advertencias
@@ -28,7 +27,7 @@ library(sf); library(rnaturalearth)
 ```
 
 ## Datos
-Los archivos contienen datos sobre las capturas retenidas de atún realizadas por embarcaciones de cerco en el Océano Pacífico Oriental (OPO) durante el período 1958-2023. Estos datos fueron registrados por observadores a bordo en el mar o extraídos de los libros de registro de las embarcaciones cuando los datos de los observadores no están disponibles. Incluyen información sobre la captura, el número de lances, agregados por año, mes, bandera o tipo de lance, y por cuadrículas de 1°x1° de latitud/longitud.
+Los archivos contienen datos sobre las capturas retenidas de atún realizadas por embarcaciones de cerco en el Océano Pacífico Oriental (OPO) durante el período 1990-2023. Estos datos fueron registrados por observadores a bordo en el mar o extraídos de los libros de registro de las embarcaciones cuando los datos de los observadores no están disponibles. Incluyen información sobre la captura, el número de lances, agregados por año, mes, bandera o tipo de lance, y por cuadrículas de 1°x1° de latitud/longitud.
 
 ```{r datos}
 datosFlag <- read.csv("../datos/PublicPSTunaFlag.csv", header = T)
