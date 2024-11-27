@@ -1,46 +1,198 @@
 ---
-title: "Atunes"
-author: "a y b"
-format: html
+title: "Análisis de Capturas de Atún por la Flota de Cerco en el Océano Pacífico Oriental (1958-2023)"
+author: "Elmer Ovidio Quispe Salazar"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: cosmo
+    highlight: tango
+lang: "es"
 editor: visual
 ---
-## Paquetes 
 
-```{r}
-library(visdat)
-library(dplyr)
-library(ggplot2)
-library(tidyr)
+```{r setup, include=FALSE}
+# Configuración global de chunks
+knitr::opts_chunk$set(
+  echo = TRUE,        # Mostrar código en el informe
+  warning = FALSE,    # No mostrar advertencias
+  message = FALSE,    # No mostrar mensajes
+  fig.align = "center" # Centrar las figuras
+)
+
+library(visdat); library(dplyr); library(ggplot2)
+library(tidyr); library(cowplot); 
+library(sf); library(rnaturalearth)
 ```
 
 ## Datos
+Los archivos contienen datos sobre las capturas retenidas de atún realizadas por embarcaciones de cerco en el Océano Pacífico Oriental (OPO) durante el período 1958-2023. Estos datos fueron registrados por observadores a bordo en el mar o extraídos de los libros de registro de las embarcaciones cuando los datos de los observadores no están disponibles. Incluyen información sobre la captura, el número de lances, agregados por año, mes, bandera o tipo de lance, y por cuadrículas de 1°x1° de latitud/longitud.
 
-```{r}
-datos_a <- read.csv("../datos/PublicPSTunaFlag.csv", header = T)
-str(datos_a)
+```{r datos}
+datosFlag <- read.csv("../datos/PublicPSTunaFlag.csv", header = T)
+str(datosFlag)
+datosSet <-  read.csv("../datos/PublicPSTunaSetType.csv", header = T)
+str(datosSet)
 
-datos_b <-  read.csv("../datos/PublicPSTunaSetType.csv", header = T)
-str(datos_b)
+df <- data.frame(codeSp = c("ALB", "BET", "BKJ", "BZX", "FRZ", "PBF",
+                            "SKJ", "TUN", "YFT"),
+                 especie = c("Albacora (atún blanco)", "Patudo (ojo grande)", 
+                             "Barrilete negro", "Bonito", 
+                             "Melva y melvera", "Aleta azul del Pacífico", 
+                             "Barrilete", "Atunes, nep*", "Aleta amarilla"))
 ```
 
-```{r}
-captura_anual_especies <- datos_a %>%
+## Captura de atunes por la flota de Perú
+En el siguiente gráfico se muestra la captura anual de atunes por Perú en el OPO durante el período 1958-2023. Se observa que la captura de atunes ha aumentado en los últimos años, siendo el atún de aleta amarilla (YFT) la especie más capturada.
+
+```{r captura_peru}
+rangeYear <- range(datosFlag$Year)
+
+cap_per <- datosFlag %>%
+  filter(Flag == "PER") %>%
+  select(Year, Month, LatC1, LonC1, NumSets, ALB, BET, BKJ, BZX, FRZ, PBF,
+         SKJ, TUN, YFT)
+
+cap_per_anual <- cap_per %>%
   group_by(Year) %>%              
-  summarise(across(c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), sum, na.rm = TRUE))  
+  summarise(
+    Captura_Total = sum(ALB, na.rm = TRUE) + sum(BET, na.rm = TRUE) + 
+      sum(BKJ, na.rm = TRUE) + sum(BZX, na.rm = TRUE) + sum(FRZ, na.rm = TRUE) +
+      sum(PBF, na.rm = TRUE) + sum(SKJ, na.rm = TRUE) + sum(TUN, na.rm = TRUE) +
+      sum(YFT, na.rm = TRUE), 
+    NumSets_Total = sum(NumSets, na.rm = TRUE),  # Sumar número total de lances
+    Captura_Por_Lance = Captura_Total / NumSets_Total  # Captura promedio por lance
+  ) %>%
+  ungroup()
 
-captura_anual_long <- captura_anual_especies %>%
-  pivot_longer(cols = c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), 
-               names_to = "Especie", 
-               values_to = "Captura")
 
-ggplot(captura_anual_long, aes(x = Year, y = Captura, color = Especie)) +
-  geom_line(linewidth = 1.2) + 
-  theme_minimal() +  
-  labs(title = "Capturas Anuales por Especie", 
+
+g1 <- ggplot(cap_per_anual, aes(x = Year, y = Captura_Total)) +
+      geom_line(linewidth = 1, color = "red") + 
+      geom_point(size = 3, pch = 21, bg = "red", color = "gray50") +
+      theme_bw() +  
+      labs(title = "", 
        x = "Año", 
-       y = "Captura Total", 
-       color = "Especie") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+       y = "Captura Total") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      scale_x_continuous(breaks = seq(rangeYear[1], rangeYear[2], 2), 
+                     labels = seq(rangeYear[1], rangeYear[2], 2)) +
+      xlim(rangeYear)
+
+g2 <- ggplot(cap_per_anual, aes(x = Year, y = NumSets_Total)) +
+      geom_line(linewidth = 1, color = "blue") + 
+      geom_point(size = 3, pch = 21, bg = "blue", color = "gray50") +
+      theme_bw() +  
+      labs(title = "", 
+       x = "Año", 
+       y = "N° de lances") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      scale_x_continuous(breaks = seq(rangeYear[1], rangeYear[2], 2), 
+                     labels = seq(rangeYear[1], rangeYear[2], 2)) +
+      xlim(rangeYear)
+
+g3 <- ggplot(cap_per_anual, aes(x = Year, y = Captura_Por_Lance)) +
+      geom_line(linewidth = 1, color = "darkgreen") + 
+      geom_point(size = 3, pch = 21, bg = "darkgreen", color = "gray50") +
+      theme_bw() +  
+      labs(title = "", 
+       x = "Año", 
+       y = "CPUE (captura/lance)") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      scale_x_continuous(breaks = seq(rangeYear[1], rangeYear[2], 2), 
+                     labels = seq(rangeYear[1], rangeYear[2], 2)) +
+      xlim(rangeYear)
+
+cowplot::plot_grid(g1, g2, g3, ncol = 3)
+
 
 ```
+## Captura de especie por la flota de Perú
+
+```{r}
+
+cap_per_especie <- cap_per %>%
+  group_by(Year) %>% 
+  summarise(across(c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), 
+                   sum, na.rm = TRUE)) %>%
+  pivot_longer(cols = -Year, names_to = "codeSp", values_to = "Captura") %>%
+  filter(Captura > 0) %>%
+  left_join(df, by = "codeSp")
+
+ggplot(cap_per_especie, aes(x = Year, y = Captura, color = especie)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~especie, scales = "fixed") +
+  theme_bw() +
+  labs(title = "Capturas anuales por especie", 
+       x = "Año", 
+       y = "Captura (toneladas)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
+   scale_x_continuous(breaks = seq(rangeYear[1], rangeYear[2], 2)) +
+  xlim(rangeYear)
+
+```
+## Áreas de pesca por la flota de Perú
+
+```{r espacial_peru}
+
+spAnual <- cap_per %>%
+  group_by(LatC1, LonC1, Year) %>%
+  summarise(
+    Captura_Total = sum(ALB, na.rm = TRUE) + sum(BET, na.rm = TRUE) + sum(BKJ, na.rm = TRUE) +
+                    sum(BZX, na.rm = TRUE) + sum(FRZ, na.rm = TRUE) + sum(PBF, na.rm = TRUE) +
+                    sum(SKJ, na.rm = TRUE) + sum(TUN, na.rm = TRUE) + sum(YFT, na.rm = TRUE),  
+    NumSets_Total = sum(NumSets, na.rm = TRUE), 
+    .groups = "drop"  
+  )
+
+
+spAnual_sf <- st_as_sf(spAnual, coords = c("LatC1", "LonC1"), crs = 4326) 
+
+sf_land <- ne_countries(scale = "medium", returnclass = "sf", continent = "South America") 
+
+ggplot() +
+  geom_tile(data = spAnual, aes(x = LonC1, y = LatC1, fill = Captura_Total, col= Captura_Total)) +
+  facet_wrap(~Year) +
+  scale_color_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_fill_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_size_continuous(name = "Captura de Atunes") +
+  geom_sf(data = sf_land, fill = "black", color = "black") +
+  labs( title = "",
+        x = "Longitud", y = "Latitud"
+  ) +
+  theme_bw() + 
+  coord_sf(xlim = c(-99.5, -69.5), ylim = c(6.5, -21.5)) 
+```
+
+## Captura por especie 
+```{r}
+cap_per_especie <- cap_per %>%
+  pivot_longer(cols = c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT), 
+               names_to = "codeSp", values_to = "Captura") %>%
+  filter(Captura > 0) 
+
+cap_per_especie_anual <- cap_per_especie %>%
+  group_by(LatC1, LonC1, codeSp) %>%
+  summarise(Captura_Total = sum(Captura, na.rm = TRUE), .groups = "drop") %>% 
+   left_join(df, by = "codeSp")
+
+ggplot() +
+  geom_tile(data = cap_per_especie_anual, aes(x = LonC1, y = LatC1, fill = Captura_Total, 
+                                              col = Captura_Total)) +
+  facet_wrap(~especie) +
+  scale_color_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_fill_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_size_continuous(name = "Captura de Atunes") +
+  geom_sf(data = sf_land, fill = "black", color = "black") +
+  labs( title = "",
+        x = "Longitud", y = "Latitud"
+  ) +
+  theme_bw() + 
+  coord_sf(xlim = c(-99.5, -69.5), ylim = c(6.5, -21.5)) 
+```
+
+
 
