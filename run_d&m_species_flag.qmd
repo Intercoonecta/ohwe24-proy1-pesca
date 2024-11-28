@@ -1,0 +1,259 @@
+---
+title: "Análisis de Capturas de Atún por la Flota de Cerco en el Océano Pacífico Oriental (19990-2023)"
+author: "Maria y Diana"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: cosmo
+    highlight: tango
+lang: "es"
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,        # Mostrar código en el informe
+  warning = FALSE,    # No mostrar advertencias
+  message = FALSE,    # No mostrar mensajes
+  fig.align = "center" # Centrar las figuras
+)
+
+library(visdat); library(dplyr); library(ggplot2)
+library(tidyr); library(cowplot); 
+library(sf); library(rnaturalearth); library(readr)
+```
+
+## Datos
+
+Los archivos contienen datos sobre las capturas retenidas de atún realizadas por embarcaciones de cerco en el Océano Pacífico Oriental (OPO) durante el período 1990-2023. Estos datos fueron registrados por observadores a bordo en el mar o extraídos de los libros de registro de las embarcaciones cuando los datos de los observadores no están disponibles. Incluyen información sobre la captura, el número de lances, agregados por año, mes, bandera o tipo de lance, y por cuadrículas de 1°x1° de latitud/longitud.
+
+```{r datos}
+datosFlag <- read_csv("datos/PublicPSTunaFlag.csv")
+str(datosFlag)
+datosSet <-  read.csv("datos/PublicPSTunaSetType.csv")
+str(datosSet)
+
+df <- data.frame(codeSp = c("ALB", "BET", "BKJ", "BZX", "FRZ", "PBF",
+                            "SKJ", "TUN", "YFT"),
+                 especie = c("Albacora (atún blanco)", "Patudo (ojo grande)", 
+                             "Barrilete negro", "Bonito", 
+                             "Melva y melvera", "Aleta azul del Pacífico", 
+                             "Barrilete", "Atunes, nep*", "Aleta amarilla"))
+```
+
+## Captura de atunes por la flota de Perú
+
+En el siguiente gráfico se muestra la captura anual de atunes por Perú en el OPO durante el período 1958-2023. Se observa que la captura de atunes ha aumentado en los últimos años, siendo el atún de aleta amarilla (YFT) la especie más capturada.
+
+```{r captura_por_especie_paises}
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+
+# Cargar datos
+datosFlag <- read.csv("datos/PublicPSTunaFlag.csv", header = TRUE)
+
+# Agrupar datos por especie y país
+datos_por_especie_pais <- datosFlag %>%
+  select(Year, Flag, ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT) %>%
+  pivot_longer(cols = ALB:YFT, names_to = "Especie", values_to = "Captura") %>%
+  group_by(Year, Flag, Especie) %>%
+  summarise(Captura_Total = sum(Captura, na.rm = TRUE), .groups = "drop")
+
+# Generar gráficos por especie y país
+graficos <- datos_por_especie_pais %>%
+  ggplot(aes(x = Year, y = Captura_Total, color = Flag)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~Especie, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    title = "Tendencias de Captura por Especie para Todos los Países",
+    x = "Año",
+    y = "Captura Total",
+    color = "País"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Mostrar gráfico
+print(graficos)
+```
+
+## Captura de especie por la flota de Perú
+
+```{r}
+# Crear cap_per
+cap_per <- datosFlag %>%
+  filter(Flag == "PER") %>%
+  select(Year, Month, LatC1, LonC1, NumSets, ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT)
+
+# Crear df
+df <- data.frame(codeSp = c("ALB", "BET", "BKJ", "BZX", "FRZ", "PBF", "SKJ", "TUN", "YFT"),
+                 especie = c("Albacora", "Patudo", "Barrilete negro", "Bonito",
+                             "Melva y melvera", "Aleta azul del Pacífico",
+                             "Barrilete", "Atunes", "Aleta amarilla"))
+
+# Definir rangeYear
+rangeYear <- range(cap_per$Year, na.rm = TRUE)
+
+# Calcular capturas anuales por especie
+cap_per_especie <- cap_per %>%
+  group_by(Year) %>%
+  summarise(across(c(ALB, BET, BKJ, BZX, FRZ, PBF, SKJ, TUN, YFT),
+                   sum, na.rm = TRUE)) %>%
+  pivot_longer(cols = -Year, names_to = "codeSp", values_to = "Captura") %>%
+  filter(Captura > 0) %>%
+  left_join(df, by = "codeSp")
+
+# Graficar capturas anuales por especie
+ggplot(cap_per_especie, aes(x = Year, y = Captura, color = especie)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~especie, scales = "fixed") +
+  theme_bw() +
+  labs(title = "Capturas anuales por especie", 
+       x = "Año", 
+       y = "Captura (toneladas)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_continuous(breaks = seq(rangeYear[1], rangeYear[2], 2)) +
+  xlim(rangeYear)
+
+```
+
+## Áreas de pesca por la flota de Perú
+
+```{r espacial_peru}
+
+spAnual <- cap_per %>%
+  group_by(LatC1, LonC1, Year) %>%
+  summarise(
+    Captura_Total = sum(ALB, na.rm = TRUE) + sum(BET, na.rm = TRUE) + sum(BKJ, na.rm = TRUE) +
+                    sum(BZX, na.rm = TRUE) + sum(FRZ, na.rm = TRUE) + sum(PBF, na.rm = TRUE) +
+                    sum(SKJ, na.rm = TRUE) + sum(TUN, na.rm = TRUE) + sum(YFT, na.rm = TRUE),  
+    NumSets_Total = sum(NumSets, na.rm = TRUE), 
+    .groups = "drop"  
+  )
+
+
+spAnual_sf <- st_as_sf(spAnual, coords = c("LatC1", "LonC1"), crs = 4326) 
+
+sf_land <- ne_countries(scale = "medium", returnclass = "sf", continent = "South America") 
+
+ggplot() +
+  geom_tile(data = spAnual, aes(x = LonC1, y = LatC1, fill = Captura_Total, col= Captura_Total)) +
+  facet_wrap(~Year) +
+  scale_color_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_fill_gradient(low = "yellow", high = "darkgreen", name = "Captura total", limits = c(0, 1500)) +
+  scale_size_continuous(name = "Captura de Atunes") +
+  geom_sf(data = sf_land, fill = "black", color = "black") +
+  labs( title = "",
+        x = "Longitud", y = "Latitud"
+  ) +
+  theme_bw() + 
+  coord_sf(xlim = c(-99.5, -69.5), ylim = c(6.5, -21.5)) 
+```
+
+## Areas de pesca especies con mayor captura
+
+```{r}
+# Filtrar las especies con mayor captura por ubicación y año
+spMayorCaptura <- cap_per %>%
+  group_by(LatC1, LonC1, Year) %>%
+  summarise(
+    ALB = sum(ALB, na.rm = TRUE),
+    BET = sum(BET, na.rm = TRUE),
+    BKJ = sum(BKJ, na.rm = TRUE),
+    BZX = sum(BZX, na.rm = TRUE),
+    FRZ = sum(FRZ, na.rm = TRUE),
+    PBF = sum(PBF, na.rm = TRUE),
+    SKJ = sum(SKJ, na.rm = TRUE),
+    TUN = sum(TUN, na.rm = TRUE),
+    YFT = sum(YFT, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(cols = ALB:YFT, names_to = "Especie", values_to = "Captura") %>%
+  filter(Captura > 0) %>%
+  group_by(LatC1, LonC1, Year) %>%
+  top_n(1, Captura) %>%  # Seleccionar la especie con mayor captura
+  ungroup()
+
+# Convertir a objeto espacial
+spMayorCaptura_sf <- st_as_sf(spMayorCaptura, coords = c("LonC1", "LatC1"), crs = 4326)
+
+# Cargar capa de mapa base
+sf_land <- ne_countries(scale = "medium", returnclass = "sf", continent = "South America")
+
+# Graficar las especies con mayor captura
+ggplot() +
+  geom_tile(data = spMayorCaptura, aes(x = LonC1, y = LatC1, fill = Especie)) +
+  geom_sf(data = sf_land, fill = "black", color = "gray50") +
+  facet_wrap(~Year) +
+  scale_fill_manual(
+    values = c("ALB" = "blue", "BET" = "red", "BKJ" = "green", "BZX" = "purple",
+               "FRZ" = "orange", "PBF" = "pink", "SKJ" = "yellow", "TUN" = "brown", "YFT" = "cyan"),
+    name = "Especie"
+  ) +
+  labs(
+    title = "Especies con Mayor Captura Anual",
+    x = "Longitud",
+    y = "Latitud"
+  ) +
+  theme_bw() +
+  coord_sf(xlim = c(-99.5, -69.5), ylim = c(6.5, -21.5)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+## Aumento o disminución captura
+
+```{r}
+# Calcular las capturas totales por especie
+top_especies <- cap_per %>%
+  pivot_longer(cols = ALB:YFT, names_to = "Especie", values_to = "Captura") %>%
+  group_by(Especie) %>%
+  summarise(Captura_Total = sum(Captura, na.rm = TRUE), .groups = "drop") %>%
+  top_n(3, Captura_Total) %>%  # Seleccionar las 3 especies principales
+  pull(Especie)
+
+# Filtrar solo las 3 especies principales
+spCambioInicial <- cap_per %>%
+  pivot_longer(cols = ALB:YFT, names_to = "Especie", values_to = "Captura") %>%
+  filter(Especie %in% top_especies) %>%  # Solo las especies principales
+  group_by(LatC1, LonC1, Especie) %>%
+  mutate(
+    Cambio_Inicial = Captura - first(Captura)  # Diferencia respecto al primer año
+  ) %>%
+  ungroup()
+
+# Convertir a objeto espacial
+spCambioInicial_sf <- st_as_sf(spCambioInicial, coords = c("LonC1", "LatC1"), crs = 4326)
+
+# Cargar capa de mapa base
+sf_land <- ne_countries(scale = "medium", returnclass = "sf", continent = "South America")
+
+# Graficar cambios acumulados desde el primer año para las 3 especies principales
+ggplot() +
+  geom_tile(data = spCambioInicial, aes(x = LonC1, y = LatC1, fill = Cambio_Inicial)) +
+  geom_sf(data = sf_land, fill = "black", color = "gray50") +
+  facet_wrap(~Especie) +  # Una faceta por especie
+  scale_fill_gradient2(
+    low = "red", mid = "white", high = "blue", midpoint = 0,
+    name = "Cambio Captura"
+  ) +
+  labs(
+    title = "Cambio de Captura desde el Primer Año (Top 3 Especies)",
+    x = "Longitud",
+    y = "Latitud"
+  ) +
+  theme_bw() +
+  coord_sf(xlim = c(-84, -70), ylim = c(-18, 0)) +  # Límites geográficos para Perú
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    strip.text = element_text(size = 12, face = "bold")
+  )
+
+
+```
