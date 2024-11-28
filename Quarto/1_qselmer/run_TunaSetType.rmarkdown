@@ -29,33 +29,14 @@ library(visdat); library(dplyr); library(ggplot2)
 library(tidyr); library(cowplot); 
 library(sf); library(rnaturalearth)
 library(RColorBrewer); library(DT)
-library(satin)
 ```
 
-El análisis de las capturas de atunes permite identificar patrones de distribución y abundancia en función de factores espaciales y temporales.
-
-¿Con que especies trabajamos?
-
-```{r}
-labelsSp <- data.frame(Species = c("ALB", "BET", "BKJ", "BZX",
-                                 "FRZ", "PBF", "SKJ", "TUN",
-                                 "YFT"),
-                 names = c("Albacora", "Patudo", 
-                             "Barrilete negro", "Bonito", 
-                             "Melvas", "Aleta azul", "Barrilete", 
-                             " Otros Atunes",
-                             "Aleta amarilla"))
-
-dt1 <- datatable(labelsSp, colnames = c("Código", "Especie"), 
-          caption = "", style = "auto", selection  = "none")
-dt1
-```
-
-Algunas características de las especies
 
 ## Datos sobre captura de atunes por tipo de lance
 
 Los archivos contienen datos sobre las capturas retenidas de atún realizadas por embarcaciones de cerco en el Océano Pacífico Oriental (OPO) durante el período 1990-2023. Estos datos fueron registrados por observadores a bordo en el mar o extraídos de los libros de registro de las embarcaciones cuando los datos de los observadores no están disponibles. Incluyen información sobre la captura, el número de lances, agregados por año, mes, tipo de lance, y por cuadrículas de 1°x1° de latitud/longitud.
+
+
 
 ```{r}
 #| label: datos
@@ -69,20 +50,46 @@ datosSet <- datos0 %>%
     cols = ALB:YFT, names_to = "Species", values_to = "Catch"    
   )
 
+labelsSp <- data.frame(Species = c("ALB", "BET", "BKJ", "BZX",
+                                 "FRZ", "PBF", "SKJ", "TUN",
+                                 "YFT"),
+                 names = c("Albacora", "Patudo", 
+                             "Barrilete negro", "Bonito", 
+                             "Melvas", "Aleta azul", "Barrilete", 
+                             " Otros Atunes",
+                             "Aleta amarilla"))
+
+
 datosSet$SetType <- factor(datosSet$SetType)
 datosSet$Species <- factor(datosSet$Species)
 
 datos <- datosSet %>% 
   filter(Catch > 0) 
 
-apply(datos0[, sapply(datos0, is.numeric)], 2, function(x) sum(x > 0))
-print(sdatos0)
 
 ```
 
+```{r}
+apply(datos0[, sapply(datos0, is.numeric)], 2, function(x) sum(x > 0))
+print(sdatos0)
+```
+
+
+###  Especies de atunes
+
+
+```{r}
+dt1 <- datatable(labelsSp, colnames = c("Código", "Especie"), 
+          caption = "", style = "auto", selection  = "none")
+dt1
+```
+
+
+
 ## Captura por tipo de lance y especie
 
-Este gráfico muestra  las capturas totales de diversas especies de atún según el tipo de lance utilizado ...
+Este gráfico muestra la distribución de las capturas totales de diversas especies de atún según el tipo de lance utilizado, ...
+
 
 ```{r}
 #| label: captura_SetType
@@ -109,9 +116,11 @@ ggplot(datos_captura_SetType, aes(x = SetType, y = rel_total,
   theme_bw()
 ```
 
+
 ## Series temporales
 
 ### Captura mensual por tipo de lance y especie
+
 
 ```{r}
 #| label: captura_mensual
@@ -142,7 +151,9 @@ ggplot(datos_captura, aes(x = Year.dec, y = Catch_total, color = Species,
   theme(legend.position = "bottom")  
 ```
 
+
 ### Patrón mensual por tipo de lance y especie
+
 
 ```{r}
 #| label: patron_mensual
@@ -161,9 +172,11 @@ ggplot(datos_captura, aes(x = Month, y = Catch_total,
   theme(legend.position = "bottom")  
 ```
 
+
 ## Comportamiento espacial
 
 ### Áreas de pesca anual por tipo de lance y especie
+
 
 ```{r}
 #| label: areas_pesca
@@ -180,8 +193,8 @@ datos_annual <- datos %>%
 
 datos_annual_1 <- datos_annual %>% 
   arrange(Year) %>%        
-  filter(Year >= 2013,      
-         Year <= 2023) %>%        
+  filter(Year >= 1990,      
+         Year <= 2000) %>%        
   filter(Catch_total > 0)
 
 datos_sf <- st_as_sf(datos_annual_1, coords = c("LatC1", "LonC1"), crs = 4326) 
@@ -202,7 +215,9 @@ ggplot() +
 
 
 ```
+
 ### Áreas de pesca mensual por tipo de lance y especie
+
 
 ```{r}
 #| label: areas_pesca_mensual
@@ -273,49 +288,11 @@ ggplot() +
 
 
 ```
-## Variables ambientales 
-
-### Clorofila 
-Product identifier: GLOBAL_MULTIYEAR_BGC_001_029
-Product name: Global Ocean Biogeochemistry Hindcast
-Dataset: cmems_mod_glo_bgc_my_0.25deg_P1M-m
-
-### Temperatura 
-Product identifier: GLOBAL_MULTIYEAR_BGC_001_029
-Product name: Global Ocean Biogeochemistry Hindcast
-Dataset: cmems_mod_glo_bgc_my_0.25deg_P1M-m
-
-
-
-```{r}
-ncf <- "J:/cmems_mod_glo_bgc_my_0.25deg_P1M-m_1732803094087.nc" 
-
-cop <- read.cmems(ncf)
-
-
-
-pts <- extractPts(sst, points = ciat[, c("LonC1", "latC1")])
-
-
-formatXTP <- function(pts, plot.error = FALSE){
-  error <- pts$d
-  if (plot.error == TRUE){
-    x11(); hist(error)
-  }
-  npts <- nrow(pts)
-  ncols <- ncol(pts)
-  att <- attributes(pts)
-  ans <- data.frame(date = att$attribs$period$tmStart, t(pts[, 7:ncols]))
-  ans
-}
-
-pts2 <- formatXTP(pts)
-
-```
 
 
 
 # Ánalisis de las capturas de *Aleta amarilla (SKJ)*
+
 ```{r}
 datosskj <- datos %>%
   filter(Species == "SKJ") %>% 
@@ -327,7 +304,9 @@ datosskj$Month <- factor(datosskj$Month, levels = 1:12)
 summary(datosskj)
 ```
 
+
 ## Analisis exploratorio de datos 
+
 ```{r}
 
 e1 <- ggplot(datosskj, aes(x = Catchlog)) +
