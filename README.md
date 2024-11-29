@@ -2,10 +2,6 @@
 
 2024-11-29
 
-<script src="run_TunaSetType_repo_files/libs/kePrint-0.0.1/kePrint.js"></script>
-<link href="run_TunaSetType_repo_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-
-
 - [Datos sobre captura de atunes por tipo de
   lance](#datos-sobre-captura-de-atunes-por-tipo-de-lance)
   - [¿Y con que especies trabajamos?](#y-con-que-especies-trabajamos)
