@@ -9,15 +9,15 @@ format:
     code-tools: true       
     code-block-border-left: "#e0c02c"
     code-block-bg: "#fbf7e6"
-    theme: zephyr        
+    theme: journal        
     highlight: tango        
     toc: true               
     toc-depth: 4            
     toc_float:
       collapsed: false    
       smooth_scroll: true 
-      toc-location: left  
-      toc-title: "Contenido"  
+    toc-title: "Contenido"  
+    toc-location: right  
 lang: "es"
 editor: visual
 ---
@@ -268,6 +268,8 @@ datos_annual <- datos %>%
 sf_land <- ne_countries(scale = "medium", returnclass = "sf", 
                         continent = c("South America", "North America")) 
 
+datos_annual_sf <- st_as_sf(datos_annual, coords = c("LonC1", "LatC1"), crs = 4326) 
+
 ggplot() +
   geom_tile(data = datos_annual,  fill = "yellow", aes(x = LonC1, y = LatC1)) +
   geom_sf(data = sf_land, fill = "black", color = "black") +
@@ -280,6 +282,8 @@ ggplot() +
 ```
 
 ### Áreas de pesca por tipo de lance y especie
+
+Se realiza el analisis de las áreas de pesca por tipo de lance y especie de los buques atuneros cerqueros en el Océano Pacífico Oriental (OPO) durante 2018-2023. Para sintetizar la información temporal, estos fueron agrupados cada 10 años.
 
 #### Lance sobre atunes no asociados (NOA)
 
@@ -379,6 +383,8 @@ ggplot() +
 ```
 
 ### Comportamiento del esfuerzo espacial-estacional por tipo de lance y especie
+Se realiza el analisis del nuero de lances promedio de las áreas de pesca por tipo de lance y especie de los buques atuneros cerqueros en el Océano Pacífico Oriental (OPO) durante 2018-2023. Para sintetizar la información temporal, estos fueron agrupados cada tres meses.
+
 
 #### Lance sobre atunes no asociados (NOA)
 
@@ -405,8 +411,8 @@ datos_triem <- datos_trimestres %>%
   filter(Catch > 0) %>%
   filter(SetType == "NOA")
 
-range(datos_triem$Lances)
-range(datos_triem$LonC1); range(datos_triem$LatC1)
+# range(datos_triem$Lances)
+# range(datos_triem$LonC1); range(datos_triem$LatC1)
 
 ggplot() +
   geom_tile(data = datos_triem, aes(x = LonC1, y = LatC1, 
@@ -436,8 +442,8 @@ datos_triem <- datos_trimestres %>%
   filter(Catch > 0) %>%
   filter(SetType == "DEL")
 
-range(datos_triem$Lances)
-range(datos_triem$LonC1); range(datos_triem$LatC1)
+# range(datos_triem$Lances)
+# range(datos_triem$LonC1); range(datos_triem$LatC1)
 
 ggplot() +
   geom_tile(data = datos_triem, aes(x = LonC1, y = LatC1, 
@@ -467,7 +473,7 @@ datos_triem <- datos_trimestres %>%
   filter(Catch > 0) %>%
   filter(SetType == "OBJ")
 
-range(datos_triem$Lances)
+# range(datos_triem$Lances)
 
 ggplot() +
   geom_tile(data = datos_triem, aes(x = LonC1, y = LatC1, 
@@ -488,8 +494,12 @@ ggplot() +
 ## Variables ambientales
 
 ### Temperatura (0.25° × 0.25°)
+[Link](https://doi.org/10.48670/moi-00024)
 
-Product identifier: GLOBAL_MULTIYEAR_PHY_ENS_001_031 Product name : Global Ocean Ensemble Physics Reanalysis Dataset : cmems_mod_glo_phy-all_my_0.25deg_P1M-m
+*Product identifier: GLOBAL_MULTIYEAR_PHY_ENS_001_031 Product name : Global Ocean Ensemble*
+*Physics Reanalysis Dataset : cmems_mod_glo_phy-all_my_0.25deg_P1M-m*
+
+El producto CMEMS Global Ocean Ensemble Reanalysis a resolución de ¼ de grado ofrece medias mensuales de temperatura, salinidad, corrientes e hielo para 75 niveles verticales desde 1993. Utiliza un enfoque de conjunto multi-modelo que combina cuatro reanálisis (GLORYS2V4 de Mercator Ocean, ORAS5 de ECMWF, GloSea5 de Met Office y C-GLORSv7 de CMCC) para generar estimaciones globales del océano, utilizando datos de altimetría satelital y observaciones en situ. Este enfoque permite estimar incertidumbres en el estado del océano y, en ciertas regiones o períodos, la media del conjunto puede ofrecer estimaciones más confiables que los productos individuales. Los datos están disponibles en medias mensuales o diarias y describen el estado físico del océano.
 
 ```{r}
 #| label: temp_ambiental
@@ -519,8 +529,11 @@ temp_df_ex <- temp_df %>%
 ```
 
 ### Clorofila (0.5° × 0.5°)
+[Link](https://doi.org/10.48670/moi-00019)
 
-Product identifier: GLOBAL_MULTIYEAR_BGC_001_029 Product name: Global Ocean Biogeochemistry Hindcast Dataset: cmems_mod_glo_bgc_my_0.25deg_P1M-m
+*Product identifier: GLOBAL_MULTIYEAR_BGC_001_029 Product name: Global Ocean* *Biogeochemistry Hindcast Dataset: cmems_mod_glo_bgc_my_0.25deg_P1M-m*
+
+El hindcast biogeoquímico global, producido por Mercator-Ocean, proporciona campos biogeoquímicos 3D desde 1993 a una resolución de 1/4 grado y 75 niveles verticales, utilizando el modelo PISCES dentro de la plataforma NEMO (v3.6_STABLE), sin asimilación de datos. Los forzamientos incluyen la física oceánica FREEGLORYS2V4 y la atmósfera ERA-Interim. Los productos generados incluyen salidas diarias (clorofila, nitrato, fosfato, silicato, oxígeno disuelto, producción primaria) y mensuales (añadiendo hierro, fitoplancton en carbono). Los datos están interpolados en una malla regular estándar en formato NetCDF. Las condiciones iniciales provienen del World Ocean Atlas 2013 para nitrato, fosfato, silicato y oxígeno disuelto, de GLODAPv2 para DIC y alcalinidad, y de salidas de modelos climatológicos para hierro y DOC.
 
 ```{r}
 #| label: chl_ambiental
@@ -582,13 +595,13 @@ datosskj <- datosskj[, c("Year", "Month", "SetType", "NumSets",
                          "Catchlog", "Catch", "lon", "lat", "chl_value", 
                          "thetao_cglo_value")]
 
-summary(datosskj)
 #***********************
 skj_df_ex <- datosskj %>%
   filter(Year ==  2015) %>%
   filter(Month == 6) %>%
   filter(!is.na(Catch))
 
+summary(datosskj)
 ```
 
 ```{r}
@@ -597,12 +610,14 @@ skj_df_ex <- datosskj %>%
 #| fig.height: 8
 #| fig.width: 8
 
+chl_df_ex_sf <- st_as_sf(chl_df_ex, coords = c("lon", "lat"), crs = 4326) 
+
 ggplot()  +
   geom_tile(data = chl_df_ex, aes(x = lon, y = lat, fill = chl_value)) +
-  geom_sf(data = sf_land, fill = "black", color = "black") +
   geom_point(data = skj_df_ex,  aes(x = lon, y = lat), 
              shape = 1, size = 0.5, 
              color = "red")+
+  geom_sf(data = sf_land, fill = "black", color = "black") +
   scale_fill_viridis_c(
     name = "Clorofila (mg/m³)",       
     option = "viridis",   limits = c(0.05, 2.42),        
