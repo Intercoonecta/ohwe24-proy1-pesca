@@ -4,34 +4,14 @@ subtitle: "Hackaton en ciencia marina"
 author: ""
 date: "`r Sys.Date()`"
 format:
-  html:
-    code-fold: "show"       
-    code-tools: true       
-    code-block-border-left: "#e0c02c"
-    code-block-bg: "#fbf7e6"
-    theme: zephyr        
-    highlight: tango        
-    toc: true               
-    toc-depth: 4            
-    toc_float:
-      collapsed: false    
-      smooth_scroll: true 
-      toc-location: left  
-      toc-title: "Contenido"  
+  gfm:
+    toc: true
+    toc-depth: 4
+prefer-html: true
 lang: "es"
 editor: visual
 ---
 
-```{=html}
-<style>
-  body {
-    text-align: justify;
-  }
-  h1, h2, h3, .toc {
-    text-align: left;  /* Deja el título y el TOC alineados a la izquierda */
-  }
-</style>
-```
 **Contactos:**\
 📧 Elmer Ovidio Quispe Salazar: [qselmer\@gmail.com](mailto:qselmer@gmail.com)\
 📧 Malurisbel López Campos: [malurysbel\@gmail.com](mailto:malurysbel@gmail.com)
