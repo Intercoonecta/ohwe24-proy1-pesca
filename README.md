@@ -1,17 +1,20 @@
-<table width="100%">
+<div align="center">
+
+<table style="margin-left:auto; margin-right:auto;">
   <tr>
     <td align="left" width="20%">
-      <img src="OHWe.png" height="80">
+      <img src="OHWe.png" height="100">
     </td>
     <td align="center" width="60%">
       <b>OceanHackWeek en Español</b>
     </td>
     <td align="right" width="20%">
-      <img src="HWe.png" height="80">
+      <img src="HWe.png" height="100">
     </td>
   </tr>
 </table>
 
+</div>
 ##  Proyecto 1 — Variabilidad espacio-temporal de las capturas de atún (1990-2023)
 
 💡💻 Hackatón OceanHackWeek en Español — OHWe 2024
