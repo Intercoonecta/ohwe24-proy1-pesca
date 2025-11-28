@@ -1,17 +1,16 @@
 <table width="100%">
   <tr>
-    <td align="left" width="40%">
-      <img src="OHWe.png" height="100">
-       </td>
-    <td align="center" width="80%">
+    <td align="left" width="20%">
+      <img src="OHWe.png" height="80">
+    </td>
+    <td align="center" width="60%">
       <b>OceanHackWeek en Español</b>
     </td>
-    <td align="right" width="40%">
-      <img src="HWe.png" height="100">
+    <td align="right" width="20%">
+      <img src="HWe.png" height="80">
     </td>
   </tr>
 </table>
-
 
 ##  Proyecto 1 — Variabilidad espacio-temporal de las capturas de atún (1990-2023)
 
