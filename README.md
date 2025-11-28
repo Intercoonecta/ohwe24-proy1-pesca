@@ -2,8 +2,10 @@
   <tr>
     <td align="left" width="33%">
       <img src="OHWe.png" height="80">
-      </td>
-    <td width="34%"></td>
+       </td>
+    <td align="center" width="34%">
+      <b>OceanHackWeek en Español</b>
+    </td>
     <td align="right" width="33%">
       <img src="HWe.png" height="80">
     </td>
