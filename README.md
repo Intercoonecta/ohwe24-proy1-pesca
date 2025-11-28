@@ -1,12 +1,12 @@
 <table width="100%">
   <tr>
-    <td align="left" width="33%">
+    <td align="left" width="20">
       <img src="OHWe.png" height="80">
        </td>
-    <td align="center" width="34%">
+    <td align="center" width="60%">
       <b>OceanHackWeek en Español</b>
     </td>
-    <td align="right" width="33%">
+    <td align="right" width="20%">
       <img src="HWe.png" height="80">
     </td>
   </tr>
