@@ -1,10 +1,10 @@
 <table width="100%">
   <tr>
     <td align="left">
-      <img src="OHWe.png" height="80">
+      <img src="OHWe.png" height="80"  style="max-width:200px;">
     </td>
     <td align="right">
-      <img src="HWe.png" height="80">
+      <img src="HWe.png" height="80" style="max-width:320px;">
     </td>
   </tr>
 </table>
