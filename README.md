@@ -3,7 +3,7 @@
     <td align="left" width="40%">
       <img src="OHWe.png" height="100">
        </td>
-    <td align="center" width="120%">
+    <td align="center" width="80%">
       <b>OceanHackWeek en Español</b>
     </td>
     <td align="right" width="40%">
