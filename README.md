@@ -1,13 +1,14 @@
 <table width="100%">
   <tr>
     <td align="left">
-      <img src="OHWe.png" alt="Logo izquierdo" height="80">
-          </td>
+      <img src="OHWe.png" height="80">
+    </td>
     <td align="right">
-      <img src="HWe.png" alt="Logo derecho" height="80">
-          </td>
+      <img src="HWe.png" height="80">
+    </td>
   </tr>
 </table>
+
 
 ##  Proyecto 1 — Variabilidad espacio-temporal de las capturas de atún (1990-2023)
 
