@@ -21,11 +21,11 @@
 💡💻 Hackatón OceanHackWeek en Español — OHWe 2024
 
 ### 👥 Autores
-- Elmer Quispe-Salazar
-- Malurisbel López Campos
-- José Fco. Chávez
-- Alejandro Gallardo
-- Esther Cabral
+- Elmer Quispe-Salazar (Universidad Peruana Cayetano Heredia, Perú)
+- Malurisbel López Campos (Autoridad de los Recursos Acuáticos de Panamá, Panamá)
+- Alejandro Gallardo (Department at Instituto Nacional de Pesca y Acuacultura, México)
+- José Fco. Chávez (Department at Instituto Nacional de Pesca y Acuacultura, México)
+- Esther Cabral (Department at Instituto Nacional de Pesca y Acuacultura, México)
 
 🔗 Puedes revisar en proyecto [aquí](https://github.com/Intercoonecta/ohwe24-proy1-pesca/blob/main/proyect/run_TunaSetType_repo.md)
 
