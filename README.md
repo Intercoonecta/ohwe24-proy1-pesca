@@ -1,20 +1,24 @@
-<p>
+<table width="100%">
+  <tr>
+    <td align="left">
       <img src="OHWe.png" alt="Logo izquierdo" height="80">
-    </td>
+          </td>
     <td align="right">
-      <img src="HWe.png" alt="Logo derecho" height="80" style="float:right;">
-</p>
+      <img src="HWe.png" alt="Logo derecho" height="80">
+          </td>
+  </tr>
+</table>
 
 ##  Proyecto 1 — Variabilidad espacio-temporal de las capturas de atún (1990-2023)
 
-💡💻 **Hackatón OceanHackWeek en Español — OHWe 2024**
+💡💻 Hackatón OceanHackWeek en Español — OHWe 2024
 
 ### 👥 Autores
-- **Elmer Quispe-Salazar**
-- **Malurisbel López Campos**
-- **José Fco. Chávez**
-- **Alejandro Gallardo**
-- **Esther Cabral**
+- Elmer Quispe-Salazar
+- Malurisbel López Campos
+- José Fco. Chávez
+- Alejandro Gallardo
+- Esther Cabral
 
 🔗 Puedes revisar en proyecto [aquí](https://github.com/Intercoonecta/ohwe24-proy1-pesca/blob/main/proyect/run_TunaSetType_repo.md)
 
